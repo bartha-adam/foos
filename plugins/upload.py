@@ -6,6 +6,7 @@ import random
 import sys
 import time
 import logging
+import datetime
 from foos.process import call_and_log
 import foos.config as config
 from apiclient.discovery import build
@@ -34,7 +35,8 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, http.client.NotConnecte
 # codes is raised.
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
-CLIENT_SECRETS_FILE = "client_secrets.json"
+#CLIENT_SECRETS_FILE = "client_secrets.json"
+CLIENT_SECRETS_FILE = "youtube_client_id.json"
 
 
 def get_authenticated_service():
@@ -58,6 +60,11 @@ def initialize_upload(title=None, file='/tmp/replay/replay_long.mp4'):
         'snippet': {
             'title': title,
             'description': title,
+            'keywords': 'Fussball',
+            'privacy': 'unlisted',
+        },
+        'status': {
+            'privacyStatus': 'public'
         }
     }
 
@@ -124,13 +131,13 @@ class Plugin:
 
         if ev.name != 'upload_request':
             return
-
+        logger.info("Upload requested")
         self.bus.notify('upload_start')
-        text = 'Replay'
+        text = '[{}] MacFoos'.format(datetime.datetime.now().strftime("%Y/%m/%d %H:%m:%S"))
         if self.replay_data.get('type') == 'goal':
             text = '{} goal'.format(self.replay_data.get('team', '?').capitalize())
 
-        title = "{}: {}-{}".format(text, self.current_score[0], self.current_score[1])
+        title = "{} : {}-{}".format(text, self.current_score[0], self.current_score[1])
         logger.info("Uploading video: %s", title)
 
         try:

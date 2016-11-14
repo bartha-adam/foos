@@ -34,6 +34,7 @@ class Plugin:
         if ev.name == "score_changed":
             self.check_win_time = now + self.check_delay
             self.current_score = ev.data
+            logger.info("Score changed: {}".format(ev.data))
         if ev.name == "replay_start":
             # wait for replay_end rather than checking it with a specific delay
             self.check_win_time = None
